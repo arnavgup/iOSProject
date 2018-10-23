@@ -3,7 +3,7 @@ class CoursesController < ApplicationController
 
     swagger_api :index do
         summary "Fetches all courses"
-        notes "This lists all the courses"
+        notes "This lists all the courses!!!"
         param :query, :active, :boolean, :optional, "Filter by active"
         param :query, :getByYear, :string, :optional, "Filter by year"
         param :query, :forProfessor, :integer, :optional, "Filter by professor"
