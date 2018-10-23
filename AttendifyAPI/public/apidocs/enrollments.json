@@ -2,37 +2,30 @@
   "apiVersion": "1.0",
   "swaggerVersion": "1.2",
   "basePath": "http://localhost:3000",
-  "resourcePath": "students",
+  "resourcePath": "enrollments",
   "apis": [
     {
-      "path": "/students.json",
+      "path": "/enrollments.json",
       "operations": [
         {
-          "summary": "Fetches all students",
-          "notes": "This lists all the students",
-          "nickname": "Students#index",
+          "summary": "Fetches all enrollments",
+          "notes": "This lists all the enrollments",
+          "nickname": "Enrollments#index",
           "method": "get"
         }
       ]
     },
     {
-      "path": "/students.json",
+      "path": "/enrollments.json",
       "operations": [
         {
-          "summary": "Creates a new student",
+          "summary": "Creates a new enrollment",
           "parameters": [
             {
               "paramType": "form",
-              "name": "first_name",
-              "type": "string",
-              "description": "First name",
-              "required": true
-            },
-            {
-              "paramType": "form",
-              "name": "last_name",
-              "type": "string",
-              "description": "Last name",
+              "name": "course_id",
+              "type": "integer",
+              "description": "Course ID",
               "required": true
             },
             {
@@ -57,23 +50,23 @@
               "message": "Not Acceptable"
             }
           ],
-          "nickname": "Students#create",
+          "nickname": "Enrollments#create",
           "method": "post"
         }
       ]
     },
     {
-      "path": "/students/{id}.json",
+      "path": "/enrollments/{id}.json",
       "operations": [
         {
-          "summary": "Shows one student",
-          "notes": "This lists details of one student",
+          "summary": "Shows one enrollment",
+          "notes": "This lists details of one enrollment",
           "parameters": [
             {
               "paramType": "path",
               "name": "id",
               "type": "integer",
-              "description": "student ID",
+              "description": "enrollment ID",
               "required": true
             }
           ],
@@ -84,51 +77,37 @@
               "message": "Not Found"
             }
           ],
-          "nickname": "Students#show",
+          "nickname": "Enrollments#show",
           "method": "get"
         }
       ]
     },
     {
-      "path": "/students/{id}.json",
+      "path": "/enrollments/{id}.json",
       "operations": [
         {
-          "summary": "Updates an existing student",
+          "summary": "Updates an existing enrollment",
           "parameters": [
             {
               "paramType": "form",
-              "name": "professor_id",
-              "type": "string",
-              "description": "Professor ID",
+              "name": "course_id",
+              "type": "integer",
+              "description": "Course ID",
               "required": true
             },
             {
               "paramType": "form",
-              "name": "first_name",
+              "name": "andrew_id",
               "type": "string",
-              "description": "E-mail",
-              "required": false
+              "description": "Andrew ID",
+              "required": true
             },
             {
               "paramType": "form",
-              "name": "first_name",
-              "type": "string",
-              "description": "First name",
-              "required": false
-            },
-            {
-              "paramType": "form",
-              "name": "last_name",
-              "type": "string",
-              "description": "Last name",
-              "required": false
-            },
-            {
-              "paramType": "form",
-              "name": "password",
-              "type": "string",
-              "description": "Password",
-              "required": false
+              "name": "active",
+              "type": "boolean",
+              "description": "Active",
+              "required": true
             }
           ],
           "responseMessages": [
@@ -143,7 +122,7 @@
               "message": "Not Acceptable"
             }
           ],
-          "nickname": "Students#update",
+          "nickname": "Enrollments#update",
           "method": "patch"
         }
       ]

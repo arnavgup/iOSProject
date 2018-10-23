@@ -24,15 +24,14 @@ class StudentsController < ApplicationController
 
     swagger_api :update do
         summary "Updates an existing student"
-        param :path, :id, :integer, :required, "Child Id"
+        param :form, :professor_id, :string, :required, "Professor ID"
+        param :form, :first_name, :string, :optional, "E-mail"
         param :form, :first_name, :string, :optional, "First name"
-        param :form, :andrew_id, :string, :required, "Andrew ID"
         param :form, :last_name, :string, :optional, "Last name"
-        param :form, :active, :boolean, :optional, "Active"
+        param :form, :password, :string, :optional, "Password"
         response :not_found
         response :not_acceptable
     end
-
 
     before_action :set_student, only: [:show, :update, :destroy]
 

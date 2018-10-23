@@ -7,7 +7,7 @@ class Swagger::Docs::Config
   end
 end
 
-Swagger::Docs::Config.base_api_controller = ActionController::API 
+Swagger::Docs::Config.base_api_controller = ActionController::API
 
 Swagger::Docs::Config.register_apis({
   "1.0" => {
@@ -22,8 +22,8 @@ Swagger::Docs::Config.register_apis({
     # add custom attributes to api-docs
     :attributes => {
       :info => {
-        "title" => "Chore Tracker API",
-        "description" => "Uses swagger ui and docs to document the ChoreTracker API"
+        "title" => "iOS backend API",
+        "description" => "Uses swagger ui and docs to document the iOS API project"
       }
     }
   }

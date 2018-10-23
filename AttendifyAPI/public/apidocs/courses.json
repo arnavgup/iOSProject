@@ -2,44 +2,44 @@
   "apiVersion": "1.0",
   "swaggerVersion": "1.2",
   "basePath": "http://localhost:3000",
-  "resourcePath": "students",
+  "resourcePath": "courses",
   "apis": [
     {
-      "path": "/students.json",
+      "path": "/courses.json",
       "operations": [
         {
-          "summary": "Fetches all students",
-          "notes": "This lists all the students",
-          "nickname": "Students#index",
+          "summary": "Fetches all courses",
+          "notes": "This lists all the courses",
+          "nickname": "Courses#index",
           "method": "get"
         }
       ]
     },
     {
-      "path": "/students.json",
+      "path": "/courses.json",
       "operations": [
         {
-          "summary": "Creates a new student",
+          "summary": "Creates a new course",
           "parameters": [
             {
               "paramType": "form",
-              "name": "first_name",
-              "type": "string",
-              "description": "First name",
+              "name": "professor_id",
+              "type": "integer",
+              "description": "Professor ID",
               "required": true
             },
             {
               "paramType": "form",
-              "name": "last_name",
+              "name": "class_number",
               "type": "string",
-              "description": "Last name",
+              "description": "Class Number",
               "required": true
             },
             {
               "paramType": "form",
-              "name": "andrew_id",
+              "name": "semester_year",
               "type": "string",
-              "description": "Andrew ID",
+              "description": "Semester Year",
               "required": true
             },
             {
@@ -57,23 +57,23 @@
               "message": "Not Acceptable"
             }
           ],
-          "nickname": "Students#create",
+          "nickname": "Courses#create",
           "method": "post"
         }
       ]
     },
     {
-      "path": "/students/{id}.json",
+      "path": "/courses/{id}.json",
       "operations": [
         {
-          "summary": "Shows one student",
-          "notes": "This lists details of one student",
+          "summary": "Shows one course",
+          "notes": "This lists details of one course",
           "parameters": [
             {
               "paramType": "path",
               "name": "id",
               "type": "integer",
-              "description": "student ID",
+              "description": "course ID",
               "required": true
             }
           ],
@@ -84,51 +84,44 @@
               "message": "Not Found"
             }
           ],
-          "nickname": "Students#show",
+          "nickname": "Courses#show",
           "method": "get"
         }
       ]
     },
     {
-      "path": "/students/{id}.json",
+      "path": "/courses/{id}.json",
       "operations": [
         {
-          "summary": "Updates an existing student",
+          "summary": "Updates an existing course",
           "parameters": [
             {
               "paramType": "form",
               "name": "professor_id",
-              "type": "string",
+              "type": "integer",
               "description": "Professor ID",
               "required": true
             },
             {
               "paramType": "form",
-              "name": "first_name",
+              "name": "class_number",
               "type": "string",
-              "description": "E-mail",
-              "required": false
+              "description": "Class Number",
+              "required": true
             },
             {
               "paramType": "form",
-              "name": "first_name",
+              "name": "semester_year",
               "type": "string",
-              "description": "First name",
-              "required": false
+              "description": "Semester Year",
+              "required": true
             },
             {
               "paramType": "form",
-              "name": "last_name",
-              "type": "string",
-              "description": "Last name",
-              "required": false
-            },
-            {
-              "paramType": "form",
-              "name": "password",
-              "type": "string",
-              "description": "Password",
-              "required": false
+              "name": "active",
+              "type": "boolean",
+              "description": "Active",
+              "required": true
             }
           ],
           "responseMessages": [
@@ -143,7 +136,7 @@
               "message": "Not Acceptable"
             }
           ],
-          "nickname": "Students#update",
+          "nickname": "Courses#update",
           "method": "patch"
         }
       ]

@@ -6,11 +6,23 @@
     {
       "path": "/apidocs/students.{format}",
       "description": "Children Management"
+    },
+    {
+      "path": "/apidocs/professors.{format}",
+      "description": "Professor Management"
+    },
+    {
+      "path": "/apidocs/courses.{format}",
+      "description": "Course Management"
+    },
+    {
+      "path": "/apidocs/enrollments.{format}",
+      "description": "Enrollment Management"
     }
   ],
   "authorizations": null,
   "info": {
-    "title": "Chore Tracker API",
-    "description": "Uses swagger ui and docs to document the ChoreTracker API"
+    "title": "iOS backend API",
+    "description": "Uses swagger ui and docs to document the iOS API project"
   }
 }
