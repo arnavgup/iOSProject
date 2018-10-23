@@ -1,3 +1,4 @@
 class Photo < ApplicationRecord
-    belongs_to :student
+
+    scope :for_andrew_id, -> (id){ where("andrew_id = ?", id) }
 end
