@@ -1,9 +1,11 @@
 class StudentsController < ApplicationController
-  swagger_controller :children, "Children Management"
+  swagger_controller :students, "students Management"
 
     swagger_api :index do
         summary "Fetches all students"
         notes "This lists all the students"
+        param :query, :active, :boolean, :optional, "Filter on whether or not the student is active"
+        param :query, :alphabetical, :boolean, :optional, "Order students by alphabetical"
     end
 
     swagger_api :show do
@@ -24,8 +26,7 @@ class StudentsController < ApplicationController
 
     swagger_api :update do
         summary "Updates an existing student"
-        param :form, :professor_id, :string, :required, "Professor ID"
-        param :form, :first_name, :string, :optional, "E-mail"
+        param :path, :id, :integer, :required, "student Id"
         param :form, :first_name, :string, :optional, "First name"
         param :form, :last_name, :string, :optional, "Last name"
         param :form, :password, :string, :optional, "Password"
@@ -38,8 +39,15 @@ class StudentsController < ApplicationController
     # GET /students
     def index
         @students = Student.all
-
         render json: @students
+
+        if(params[:active].present?)
+          @students = params[:active] == "true" ? @students.active : @students.inactive
+        end
+
+        if params[:alphabetical].present? && params[:alphabetical] == "true"
+          @students = @students.alphabetical
+        end
     end
 
     # GET /students/1
