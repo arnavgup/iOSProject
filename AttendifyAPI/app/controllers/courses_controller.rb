@@ -4,6 +4,18 @@ class CoursesController < ApplicationController
     swagger_api :index do
         summary "Fetches all courses"
         notes "This lists all the courses"
+
+    @course = Course.all
+    if(params[:active].present?)
+      @course = params[:active] == "true" ? @course.active : @course.inactive
+    elsif(params[:getByYear].present?)
+        @course = @Course.getByYear(params[:getByYear])
+    elsif(params[:forProfessor].present?)
+        @course = @Course.forProfessor(params[:forProfessor])
+      end
+    end
+
+    render json: @course
     end
 
     swagger_api :show do
