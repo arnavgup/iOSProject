@@ -9,7 +9,30 @@
       "operations": [
         {
           "summary": "Fetches all courses",
-          "notes": "This lists all the courses",
+          "notes": "This lists all the courses!!!",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "active",
+              "type": "boolean",
+              "description": "Filter by active",
+              "required": false
+            },
+            {
+              "paramType": "query",
+              "name": "getByYear",
+              "type": "string",
+              "description": "Filter by year",
+              "required": false
+            },
+            {
+              "paramType": "query",
+              "name": "forProfessor",
+              "type": "integer",
+              "description": "Filter by professor",
+              "required": false
+            }
+          ],
           "nickname": "Courses#index",
           "method": "get"
         }
