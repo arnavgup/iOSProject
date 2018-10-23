@@ -4,18 +4,9 @@ class CoursesController < ApplicationController
     swagger_api :index do
         summary "Fetches all courses"
         notes "This lists all the courses"
-
-    @course = Course.all
-    if(params[:active].present?)
-      @course = params[:active] == "true" ? @course.active : @course.inactive
-    elsif(params[:getByYear].present?)
-        @course = @Course.getByYear(params[:getByYear])
-    elsif(params[:forProfessor].present?)
-        @course = @Course.forProfessor(params[:forProfessor])
-      end
-    end
-
-    render json: @course
+        param :query, :active, :boolean, :optional, "Filter by active"
+        param :query, :getByYear, :string, :optional, "Filter by year"
+        param :query, :forProfessor, :integer, :optional, "Filter by professor"
     end
 
     swagger_api :show do
@@ -49,9 +40,16 @@ class CoursesController < ApplicationController
 
     # GET /courses
     def index
-        @courses = Course.all
-
-        render json: @courses
+        @course = Course.all
+        if(params[:active].present?)
+          @course = params[:active] == "true" ? @course.active : @course.inactive
+        elsif(params[:getByYear].present?)
+            @course = @Course.getByYear(params[:getByYear])
+        elsif(params[:forProfessor].present?)
+            @course = @Course.forProfessor(params[:forProfessor])
+        end
+        print('asdf')
+        render json: @course
     end
 
     # GET /courses/1
@@ -62,7 +60,6 @@ class CoursesController < ApplicationController
     # POST /courses
     def create
         @course = Course.new(course_params)
-
         if @course.save
           render json: @course, status: :created, location: @course
         else
