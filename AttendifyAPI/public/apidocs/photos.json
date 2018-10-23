@@ -2,53 +2,99 @@
   "apiVersion": "1.0",
   "swaggerVersion": "1.2",
   "basePath": "http://localhost:3000",
-  "resourcePath": "students",
+  "resourcePath": "photos",
   "apis": [
     {
-      "path": "/students.json",
+      "path": "/photos.json",
       "operations": [
         {
-          "summary": "Fetches all students",
-          "notes": "This lists all the students",
+          "summary": "Fetches all photos",
+          "notes": "This lists all the photos",
           "parameters": [
             {
               "paramType": "query",
-              "name": "active",
-              "type": "boolean",
-              "description": "Filter on whether or not the student is active",
-              "required": false
-            },
-            {
-              "paramType": "query",
-              "name": "alphabetical",
-              "type": "boolean",
-              "description": "Order students by alphabetical",
+              "name": "for_andrew_id",
+              "type": "string",
+              "description": "Gets the photos for the andrew ID",
               "required": false
             }
           ],
-          "nickname": "Students#index",
+          "nickname": "Photos#index",
           "method": "get"
         }
       ]
     },
     {
-      "path": "/students.json",
+      "path": "/photos.json",
       "operations": [
         {
-          "summary": "Creates a new student",
+          "summary": "Creates a new photo",
           "parameters": [
             {
               "paramType": "form",
-              "name": "first_name",
+              "name": "andrew_id",
               "type": "string",
-              "description": "First name",
+              "description": "Andrew ID",
               "required": true
             },
             {
               "paramType": "form",
-              "name": "last_name",
+              "name": "photo_url",
               "type": "string",
-              "description": "Last name",
+              "description": "Photo URL",
+              "required": false
+            }
+          ],
+          "responseMessages": [
+            {
+              "code": 406,
+              "responseModel": null,
+              "message": "Not Acceptable"
+            }
+          ],
+          "nickname": "Photos#create",
+          "method": "post"
+        }
+      ]
+    },
+    {
+      "path": "/photos/{id}.json",
+      "operations": [
+        {
+          "summary": "Shows one photo",
+          "notes": "This lists details of one photo",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "type": "integer",
+              "description": "photo ID",
+              "required": true
+            }
+          ],
+          "responseMessages": [
+            {
+              "code": 404,
+              "responseModel": null,
+              "message": "Not Found"
+            }
+          ],
+          "nickname": "Photos#show",
+          "method": "get"
+        }
+      ]
+    },
+    {
+      "path": "/photos/{id}.json",
+      "operations": [
+        {
+          "summary": "Updates an existing photo",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "type": "integer",
+              "description": "photo Id",
               "required": true
             },
             {
@@ -60,83 +106,9 @@
             },
             {
               "paramType": "form",
-              "name": "active",
-              "type": "boolean",
-              "description": "Active",
-              "required": true
-            }
-          ],
-          "responseMessages": [
-            {
-              "code": 406,
-              "responseModel": null,
-              "message": "Not Acceptable"
-            }
-          ],
-          "nickname": "Students#create",
-          "method": "post"
-        }
-      ]
-    },
-    {
-      "path": "/students/{id}.json",
-      "operations": [
-        {
-          "summary": "Shows one student",
-          "notes": "This lists details of one student",
-          "parameters": [
-            {
-              "paramType": "path",
-              "name": "id",
-              "type": "integer",
-              "description": "student ID",
-              "required": true
-            }
-          ],
-          "responseMessages": [
-            {
-              "code": 404,
-              "responseModel": null,
-              "message": "Not Found"
-            }
-          ],
-          "nickname": "Students#show",
-          "method": "get"
-        }
-      ]
-    },
-    {
-      "path": "/students/{id}.json",
-      "operations": [
-        {
-          "summary": "Updates an existing student",
-          "parameters": [
-            {
-              "paramType": "path",
-              "name": "id",
-              "type": "integer",
-              "description": "student Id",
-              "required": true
-            },
-            {
-              "paramType": "form",
-              "name": "first_name",
+              "name": "photo_url",
               "type": "string",
-              "description": "First name",
-              "required": false
-            },
-            {
-              "paramType": "form",
-              "name": "last_name",
-              "type": "string",
-              "description": "Last name",
-              "required": false
-            },
-            {
-              "paramType": "form",
-              "name": "password",
-              "type": "string",
-              "description": "Password",
+              "description": "Photo URL",
               "required": false
             }
           ],
@@ -152,7 +124,7 @@
               "message": "Not Acceptable"
             }
           ],
-          "nickname": "Students#update",
+          "nickname": "Photos#update",
           "method": "patch"
         }
       ]
