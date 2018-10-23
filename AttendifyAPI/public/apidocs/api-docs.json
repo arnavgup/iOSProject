@@ -5,7 +5,11 @@
   "apis": [
     {
       "path": "/apidocs/students.{format}",
-      "description": "Children Management"
+      "description": "students Management"
+    },
+    {
+      "path": "/apidocs/photos.{format}",
+      "description": "photos Management"
     }
   ],
   "authorizations": null,
