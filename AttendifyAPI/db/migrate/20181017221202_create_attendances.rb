@@ -4,7 +4,7 @@ class CreateAttendances < ActiveRecord::Migration[5.1]
       t.integer :course_id
       t.string :andrew_id
       t.timestamp :date
-      t.string :type
+      t.string :attendance_type
 
       t.timestamps
     end

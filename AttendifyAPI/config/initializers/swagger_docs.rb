@@ -7,7 +7,7 @@ class Swagger::Docs::Config
   end
 end
 
-Swagger::Docs::Config.base_api_controller = ActionController::API 
+Swagger::Docs::Config.base_api_controller = ActionController::API
 
 Swagger::Docs::Config.register_apis({
   "1.0" => {
@@ -16,14 +16,14 @@ Swagger::Docs::Config.register_apis({
     # the output location where your .json files are written to
     :api_file_path => "public/apidocs",
     # the URL base path to your API (make sure to change this if you are not using localhost:3000)
-    :base_path => "http://localhost:3000",
+    :base_path => "https://attendify.herokuapp.com",
     # if you want to delete all .json files at each generation
     :clean_directory => false,
     # add custom attributes to api-docs
     :attributes => {
       :info => {
-        "title" => "Chore Tracker API",
-        "description" => "Uses swagger ui and docs to document the ChoreTracker API"
+        "title" => "Attendify Backend API",
+        "description" => "These are the end points for the Attendify project. The API would help save the records of students persistently and would make it possible to integrate with other systems like Canvas"
       }
     }
   }

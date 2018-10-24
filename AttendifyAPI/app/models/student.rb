@@ -1,8 +1,9 @@
 class Student < ApplicationRecord
-
-    has_many :enrollments
-
-    validates_presence_of :first_name, :last_name
+    has_many :photos
+    has_many :enrollments 
+    
+    validates_presence_of :andrew_id
+    validates :andrew_id, uniqueness: true
 
     scope :alphabetical, -> { order(:last_name, :first_name) }
     scope :active, -> {where(active: true)}

@@ -1,0 +1,6 @@
+[submodule "AttendifyAPI/public/api2"]
+	path = AttendifyAPI/public/api2
+	url = https://github.com/cmu-is-projects/RailsSwaggerUI
+[submodule "AttendifyAPI/public/api"]
+	path = AttendifyAPI/public/api
+	url = https://github.com/cmu-is-projects/RailsSwaggerUI

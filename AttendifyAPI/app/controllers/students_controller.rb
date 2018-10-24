@@ -19,7 +19,7 @@ class StudentsController < ApplicationController
         summary "Creates a new student"
         param :form, :first_name, :string, :required, "First name"
         param :form, :last_name, :string, :required, "Last name"
-        param :form, :andrew_id, :string, :required, "Andrew ID"
+        param :form, :andrew_id, :string, :required, "Andrew ID, should be unique"
         param :form, :active, :boolean, :required, "Active"
         response :not_acceptable
     end
@@ -28,13 +28,11 @@ class StudentsController < ApplicationController
         summary "Updates an existing student"
         param :path, :id, :integer, :required, "student Id"
         param :form, :first_name, :string, :optional, "First name"
-        param :form, :andrew_id, :string, :required, "Andrew ID"
         param :form, :last_name, :string, :optional, "Last name"
-        param :form, :active, :boolean, :optional, "Active"
+        param :form, :password, :string, :optional, "Password"
         response :not_found
         response :not_acceptable
     end
-
 
     before_action :set_student, only: [:show, :update, :destroy]
 
