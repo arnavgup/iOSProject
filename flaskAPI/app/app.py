@@ -17,7 +17,7 @@ from marshmallow import post_load
 app = Flask(__name__)
 if __name__ == "__main__":
     # Only for debugging while developing
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=80, debug=False)
 
 # configure logging
 logging.basicConfig(level=logging.DEBUG,
