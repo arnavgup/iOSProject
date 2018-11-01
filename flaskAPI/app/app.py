@@ -7,17 +7,25 @@ import turicreate as tc
 import sys
 from queue import Queue
 import os
-import uuid
 import logging
 from flask import send_from_directory
 import threading
 from marshmallow import fields
 from marshmallow import post_load
+import os
+import boto3
+S3_BUCKET = "gyao.iosproject.faceimages"
+S3_KEY = os.environ.get("S3_ACCESS_KEY")
+S3_SECRET = os.environ.get("S3_SECRET_ACCESS_KEY")
+s3 = boto3.client('s3')
+bucket_name = S3_BUCKET
+
 
 app = Flask(__name__)
 if __name__ == "__main__":
     # Only for debugging while developing
-    app.run(host='0.0.0.0', port=80, debug=False)
+    app.run(host='0.0.0.0', port=80, debug=True)
+    print("asdf")
 
 # configure logging
 logging.basicConfig(level=logging.DEBUG,
@@ -36,46 +44,51 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 
-# model/users is a many to many relationship,  that means there's a third #table containing user id and model id
-users_models = db.Table('users_models',
-                        db.Column("user_id", db.Integer,
-                                  db.ForeignKey('user.id')),
-                        db.Column("model_id", db.Integer,
-                                  db.ForeignKey('model.version'))
-                        )
+# model/users is a many to many relationship,  that means there's a third
+# table containing user id and model id
+students_models = db.Table('students_models',
+                           db.Column("student_id", db.String(300),
+                                     db.ForeignKey('student.id')),
+                           db.Column("model_id", db.Integer,
+                                     db.ForeignKey('model.version'))
+                           )
 # model table
 
 
 class Model(db.Model):
     version = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(100))
-    users = db.relationship('User', secondary=users_models)
+    students = db.relationship('Student', secondary=students_models)
 
 # user table
+#name, id, position
 
 
-class User(db.Model):
+class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(300))
-    position = db.Column(db.String(300))
+    andrewid = db.Column(db.String(300))
+    fullname = db.Column(db.String(300))
+    classid = db.Column(db.Integer)
 
-    def __init__(self, name, position):
-        self.name = name
-        self.position = position
+    def __init__(self, andrewid, fullname, classid):
+        self.andrewid = andrewid
+        self.fullname = fullname
+        self.classid = classid
 
 # user schema
 
 
-class UserSchema(ma.Schema):
+class StudentSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'name', 'position')
+        fields = ('id', 'andrewid', 'fullname', 'classid')
+
 # model schema
 
 
 class ModelSchema(ma.Schema):
     version = fields.Int()
     url = fields.Method("add_host_to_url")
-    users = ma.Nested(UserSchema, many=True)
+    students = ma.Nested(StudentSchema, many=True)
     # this is necessary because we need to append the current host to the model url
 
     def add_host_to_url(self, obj):
@@ -83,8 +96,8 @@ class ModelSchema(ma.Schema):
 
 
 # initialize everything
-user_schema = UserSchema()
-users_schema = UserSchema(many=True)
+student_schema = StudentSchema()
+students_schema = StudentSchema(many=True)
 model_schema = ModelSchema()
 models_schema = ModelSchema(many=True)
 db.create_all()
@@ -102,30 +115,38 @@ def not_found(error):
 
 
 # register user
-@app.route("/face-recognition/api/v1.0/user/register", methods=['POST'])
+@app.route("/student/register", methods=['POST'])
 def register_user():
-    if not request.form or not 'name' in request.form:
-        return make_response(jsonify({'status': 'failed', 'error': 'bad request', 'message:': 'Name is required'}), 400)
+    if not request.form or not 'andrewid' in request.form:
+        return make_response(jsonify({'status': 'failed', 'error': 'bad request', 'message:': 'Andrew ID is required'}), 400)
     else:
-        name = request.form['name']
-        position = request.form.get('position')
-        if position is None:
-            position = ""
-        newuser = User(name, position)
-        db.session.add(newuser)
+        andrewid = request.form['andrewid']
+        fullname = request.form['name']
+        classid = request.form['classid']
+        newStudent = Student(andrewid, fullname, classid)
+        db.session.add(newStudent)
         db.session.commit()
         if 'photos' in request.files:
             uploaded_images = request.files.getlist('photos')
-            save_images_to_folder(uploaded_images, newuser)
-        return jsonify({'status': 'success', 'user':  user_schema.dump(newuser).data})
+            save_images_to_folder(uploaded_images, newStudent)
+        return jsonify({'status': 'success', 'user':  student_schema.dump(newStudent).data})
 
 # function to save images to image directory
 
 
-def save_images_to_folder(images_to_save, user):
+def save_images_to_folder(images_to_save, student):
+    fileCount = 0
     for a_file in images_to_save:
+        fileCount += 1
         # save images to images folder using user id as a subfolder name
-        images.save(a_file, str(user.id), str(uuid.uuid4()) + '.')
+        images.save(a_file, str(student.andrewid),
+                    "image_" + str(fileCount) + '.')
+
+        # upload image to respective folder in bucket
+        filename = "images/" + str(student.andrewid) + "/" + "image_" + str(fileCount) + ".jpg"
+        print("filename: " + filename)
+        s3.upload_file(filename, bucket_name, filename)
+
 
     # get the last trained model
     model = Model.query.order_by(Model.version.desc()).first()
@@ -137,18 +158,7 @@ def save_images_to_folder(images_to_save, user):
         queue.put(1)
 
 
-@app.route("/face-recognition/api/v1.0/model/info", methods=['GET'])
-def get_model_info():
-    models_schema.context['request'] = request
-    model = Model.query.order_by(Model.version.desc()).first()
-    if model is None:
-        return make_response(jsonify({'status': 'failed', 'error': 'model is not ready'}), 400)
-    else:
-        return jsonify({'status': 'success', 'model': model_schema.dump(model).data})
-
 # serve models
-
-
 @app.route('/models/')
 def download(filename):
     return send_from_directory('models', filename, as_attachment=True)
@@ -175,15 +185,6 @@ def train_model():
         result_data = tc.SFrame(models_folder + filename + '.sframe')
         train_data = result_data.random_split(0.8)
 
-        print("Train_data")
-        print(train_data)
-
-        print("------------------")
-        print(train_data[0])
-        print("------------------")
-        print(train_data[1])
-        print("------------------")
-        print(train_data.count)
         # the next line starts the training process
         model = tc.image_classifier.create(
             train_data[0], target='label', model='resnet-50', verbose=True)
@@ -198,10 +199,10 @@ def train_model():
         modelData = Model()
         modelData.url = models_folder + mlmodel_filename
         classes = model.classes
-        for userId in classes:
-            user = User.query.get(userId)
-            if user is not None:
-                modelData.users.append(user)
+        for andrewid in classes:
+            student = Student.query.get(andrewid)
+            if student is not None:
+                modelData.students.append(student)
         db.session.add(modelData)
         db.session.commit()
         logging.debug('done creating model')
@@ -210,7 +211,7 @@ def train_model():
 
 
 # configure queue for training models
-queue = Queue(maxsize=0)
+queue = Queue(maxsize=100)
 thread = threading.Thread(target=train_model, name='TrainingDaemon')
 thread.setDaemon(False)
 thread.start()
