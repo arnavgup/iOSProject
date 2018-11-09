@@ -134,25 +134,26 @@ def not_found(error):
 
 
 class StudentForm(FlaskForm):
-    andrewid = StringField(validators=[FileRequired()])
-    name = StringField(validators=[FileRequired()])
-    video = FileField(validators=[FileRequired()])
-    classid = StringField(validators=[FileRequired()])
+    andrewid = StringField()
+    name = StringField()
+    video = FileField()
+    classid = StringField()
 
 # register user
 @app.route("/student/register", methods=['GET', 'POST'])
 def register_user():
     if request.method == 'POST':
         if not request.form or not 'andrewid' in request.form:
-            flash('All the form fields are required. ')
             return make_response(jsonify({'status': 'failed', 'error': 'bad request', 'message:': 'Andrew ID is required'}), 400)
         else:
             andrewid = request.form['andrewid']
             fullname = request.form['name']
             classid = request.form['classid']
+
             newStudent = Student(andrewid, fullname, classid)
             db.session.add(newStudent)
             db.session.commit()
+            print(request.files['video'])
             if 'video' in request.files:
                 f = request.files['video']
                 filename = secure_filename(f.filename)
@@ -161,7 +162,7 @@ def register_user():
                     app.config['UPLOAD_FOLDER'], filename), newStudent)
             # flash('Successfully registered ' + fullname)
             return jsonify({'status': 'success', 'user':  student_schema.dump(newStudent).data})
-    return render_template('hello.html', form=StudentForm(request.form))
+    return render_template('form_registration.html', form=StudentForm(request.form))
 
 
 # function to convert image to
