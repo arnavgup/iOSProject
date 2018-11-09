@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, flash
 from flask_uploads import UploadSet, IMAGES, configure_uploads
 from flask import make_response
 from flask_sqlalchemy import SQLAlchemy
@@ -14,6 +14,14 @@ from marshmallow import fields
 from marshmallow import post_load
 import os
 import boto3
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from werkzeug.utils import secure_filename
+from wtforms.validators import DataRequired
+from flask_wtf.file import FileField, FileRequired
+from ffmpy import FFmpeg
+
+
 S3_BUCKET = "gyao.iosproject.faceimages"
 S3_KEY = os.environ.get("S3_ACCESS_KEY")
 S3_SECRET = os.environ.get("S3_SECRET_ACCESS_KEY")
@@ -24,12 +32,15 @@ bucket_name = S3_BUCKET
 app = Flask(__name__)
 if __name__ == "__main__":
     # Only for debugging while developing
-    app.run(host='0.0.0.0', port=80, debug=True)
-    print("asdf")
+    app.run(host=os.getenv('LISTEN', '0.0.0.0'),
+            port=int(os.getenv('PORT', '80')), debug=True)
 
 # configure logging
 logging.basicConfig(level=logging.DEBUG,
                     format='[%(levelname)s] - %(threadName)-10s : %(message)s')
+
+
+app.config['UPLOAD_FOLDER'] = './videos'
 
 # configure images destination folder
 app.config['UPLOADED_IMAGES_DEST'] = './images'
@@ -42,6 +53,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir,
                                                                     'facerecognition.sqlite')
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+
+
+app.config.update(dict(
+    SECRET_KEY="TESTING123",
+    WTF_CSRF_SECRET_KEY="TESTING123456"
+))
 
 
 # model/users is a many to many relationship,  that means there's a third
@@ -106,47 +123,67 @@ db.create_all()
 # error handlers
 @app.errorhandler(404)
 def not_found(error):
-    return make_response(jsonify({'error': 'not found'}), 404)
+    print(request)
+    logging.debug(request)
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 @app.errorhandler(400)
 def not_found(error):
-    return make_response(jsonify({'error': 'bad request'}), 400)
+    return make_response(jsonify({'error': 'Bad request'}), 400)
 
+
+class StudentForm(FlaskForm):
+    andrewid = StringField(validators=[FileRequired()])
+    name = StringField(validators=[FileRequired()])
+    video = FileField(validators=[FileRequired()])
+    classid = StringField(validators=[FileRequired()])
 
 # register user
-@app.route("/student/register", methods=['POST'])
+@app.route("/student/register", methods=['GET', 'POST'])
 def register_user():
-    if not request.form or not 'andrewid' in request.form:
-        return make_response(jsonify({'status': 'failed', 'error': 'bad request', 'message:': 'Andrew ID is required'}), 400)
-    else:
-        andrewid = request.form['andrewid']
-        fullname = request.form['name']
-        classid = request.form['classid']
-        newStudent = Student(andrewid, fullname, classid)
-        db.session.add(newStudent)
-        db.session.commit()
-        if 'photos' in request.files:
-            uploaded_images = request.files.getlist('photos')
-            save_images_to_folder(uploaded_images, newStudent)
-        return jsonify({'status': 'success', 'user':  student_schema.dump(newStudent).data})
+    if request.method == 'POST':
+        if not request.form or not 'andrewid' in request.form:
+            flash('All the form fields are required. ')
+            return make_response(jsonify({'status': 'failed', 'error': 'bad request', 'message:': 'Andrew ID is required'}), 400)
+        else:
+            andrewid = request.form['andrewid']
+            fullname = request.form['name']
+            classid = request.form['classid']
+            newStudent = Student(andrewid, fullname, classid)
+            db.session.add(newStudent)
+            db.session.commit()
+            if 'video' in request.files:
+                f = request.files['video']
+                filename = secure_filename(f.filename)
+                f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                save_images_to_folder(os.path.join(
+                    app.config['UPLOAD_FOLDER'], filename), newStudent)
+            # flash('Successfully registered ' + fullname)
+            return jsonify({'status': 'success', 'user':  student_schema.dump(newStudent).data})
+    return render_template('hello.html', form=StudentForm(request.form))
 
-# function to save images to image directory
 
-
-def save_images_to_folder(images_to_save, student):
-    fileCount = 0
-    for a_file in images_to_save:
-        fileCount += 1
-        # save images to images folder using user id as a subfolder name
-        images.save(a_file, str(student.andrewid),
-                    "image_" + str(fileCount) + '.')
-
-        # upload image to respective folder in bucket
-        filename = "images/" + str(student.andrewid) + "/" + "image_" + str(fileCount) + ".jpg"
-        print("filename: " + filename)
-        s3.upload_file(filename, bucket_name, filename)
-
+# function to convert image to
+# function that converts video into images, and
+# saves images under /images/{andrewid}
+def save_images_to_folder(filePath, student):
+    print("fileName")
+    print(filePath)
+    print(student)
+    os.makedirs('./images/{}'.format(student.andrewid))
+    ff = FFmpeg(inputs={filePath: None},
+                outputs={"./images/{}/image_%d.jpg".format(student.andrewid):
+                         ['-y', '-vf', 'fps=4']})
+    print(ff.cmd)
+    ff.run()
+    # os.remove(filePath)
+    # upload File to S3
+    # print("Uploading to s3")
+    # for filename in os.listdir('/images{}/'):
+    #     # filename = "images/" + str(student.andrewid) + "/" + "image_" + str(fileCount) + ".jpg"
+    #     # # print("filename: " + filename)
+    #     s3.upload_file('./images/{}/{}'.format(student.andrewid,filename), bucket_name, './images/{}/{}'.format(student.andrewid,filename))
 
     # get the last trained model
     model = Model.query.order_by(Model.version.desc()).first()
